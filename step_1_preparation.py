@@ -4,9 +4,9 @@ import pandas as pd
 
 
 #USER_SETTINGS
-xls_file = r'C:\_Workspace\TASK\Геокодирование\Сообщения\Наркосообщения 2 кв 2023.xls'
+xls_file = r'C:\_Workspace\TASK\Геокодирование\pres\Отравления_2кв23.xlsx'
 #xls_file = r'C:\_Workspace\TASK\Геокодирование\Отравления\Отравления_2кв23.xlsx'
-type = 2 # 1 - Отравления
+type = 1 # 1 - Отравления
          # 2 - Сообщения
 
 
