@@ -6,16 +6,19 @@ from qgis.core import QgsProject
 
 
 # USER_SETTINGS
-dir = r'C:\_Workspace\TASK\Геокодирование\Отравления'
+source_file = r'C:\_Workspace\TASK\Геокодирование\Отравления\Отравления_2кв23.xlsx'
 eas_buildings = 'buildings_EAS'
+
+
 user_crs = 'ROJCRS["m64_1", BASEGEOGCRS["Pulkovo 1942", DATUM["Pulkovo 1942", ELLIPSOID["Krassowsky 1940",6378245,298.3, LENGTHUNIT["metre",1]], ID["EPSG",6284]], PRIMEM["Greenwich",0, ANGLEUNIT["Degree",0.0174532925199433]]], CONVERSION["unnamed", METHOD["Transverse Mercator", ID["EPSG",9807]], PARAMETER["Latitude of natural origin",0, ANGLEUNIT["Degree",0.0174532925199433], ID["EPSG",8801]], PARAMETER["Longitude of natural origin",30, ANGLEUNIT["Degree",0.0174532925199433], ID["EPSG",8802]], PARAMETER["Scale factor at natural origin",1, SCALEUNIT["unity",1], ID["EPSG",8805]], PARAMETER["False easting",95942.17, LENGTHUNIT["metre",1], ID["EPSG",8806]], PARAMETER["False northing",-6552810, LENGTHUNIT["metre",1], ID["EPSG",8807]]], CS[Cartesian,2], AXIS["(E)",east, ORDER[1], LENGTHUNIT["metre",1, ID["EPSG",9001]]], AXIS["(N)",north, ORDER[2], LENGTHUNIT["metre",1, ID["EPSG",9001]]]]'
 
 
 
-
+dir = os.path.dirname(source_file)
+basename = (os.path.basename(source_file)).split('.')[0]
 os.chdir(dir)
 #files_with_coord = glob.glob('*_coord.csv')
-output_file = 'RESULT.gml'
+output_file = 'RESULT2.gml'
 # Выбирает из загруженных в проект!
 names = [layer.name() for layer in QgsProject.instance().mapLayers().values()]
 files_with_coord = []
@@ -207,14 +210,37 @@ join_mo_name = processing.run("native:joinattributestable",
                 'OUTPUT':'TEMPORARY_OUTPUT'
                 }
                 )
-QgsProject.instance().addMapLayer(join_mo_name['OUTPUT']).setName("Result")
+                
+wgs_ver = processing.run("native:reprojectlayer", 
+                {
+                'INPUT':join_mo_name['OUTPUT'],
+                'TARGET_CRS':QgsCoordinateReferenceSystem('EPSG:4326'),
+                #'TAGET_CRS': QgsCoordinateReferenceSystem(user_crs),
+                'OPERATION':'', 
+                'OUTPUT':'TEMPORARY_OUTPUT'
+                })
+                
+objectid_auto = processing.run("native:addautoincrementalfield", 
+            {
+            'INPUT':wgs_ver['OUTPUT'],
+            'FIELD_NAME':'AUTO',
+            'START':1,
+            'MODULUS':0,
+            'GROUP_FIELDS':[],
+            'SORT_EXPRESSION':'',
+            'SORT_ASCENDING':True,
+            'SORT_NULLS_FIRST':False,
+            'OUTPUT':'TEMPORARY_OUTPUT'
+            })
+                
+QgsProject.instance().addMapLayer(objectid_auto['OUTPUT']).setName("Result")
 
 export_gml = processing.run("native:refactorfields", 
                             {
-                            'INPUT':join_mo_name['OUTPUT'],
+                            'INPUT':objectid_auto['OUTPUT'],
                             'FIELDS_MAPPING':[
-                                {'expression': '"set_id"','length': 20,'name': 'OBJECTID_1','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
-                                {'expression': '"set_id"','length': 20,'name': 'OBJECTID','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
+                                {'expression': '"AUTO"','length': 0,'name': 'OBJECTID_1','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                {'expression': '"AUTO"','length': 0,'name': 'OBJECTID','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
                                 {'expression': '"ID_BUILDING_EAS"','length': 10,'name': 'ID_EAS','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
                                 {'expression': '"adr_src"','length': 0,'name': 'adress_in_','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
                                 {'expression': '"x"','length': 20,'name': 'X','precision': 10,'sub_type': 0,'type': 6,'type_name': 'double precision'},
@@ -244,6 +270,6 @@ export_gml = processing.run("native:refactorfields",
 
 # QgsProject.instance().addMapLayer(export_gml['OUTPUT'])
 #output_file = QgsVectorLayer(os.path.abspath(output_file))
-iface.addVectorLayer(output_file, "Result_GML", "ogr")
+iface.addVectorLayer(output_file, basename, "ogr")
 
 print('Ready')
