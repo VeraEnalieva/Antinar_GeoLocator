@@ -73,7 +73,7 @@ if __name__ == "__main__"    :
         #df.to_csv(src_file[:-ext_len]+'_ID.csv', index=False, columns=['set_id', 'city', 'Street', 'HouseNum'])
         values = {"HouseNum": 1,}
         df = df.fillna(value=values)
-        df['Mesto'] = df['city'].astype(str)+', '+df['Street'].astype(str)+', '+ df['HouseNum'].astype(str) + ', ' + df['District']+' район'
+        df['Mesto'] = df['city'].astype(str)+', '+df['Street'].astype(str)+', '+ df['HouseNum'].astype(str)+', '+ df['District']+' район'
 
         
     elif type == 2:
