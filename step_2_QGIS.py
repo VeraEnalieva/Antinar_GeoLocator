@@ -230,7 +230,7 @@ export_gml = processing.run("native:refactorfields",
                                 {'expression': '"KolOtrvl"','length': 0,'name': 'KolOtrvl','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
                                 {'expression': '"ObstOtr"','length': 250,'name': 'ObstOtr','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
                                 {'expression': '"MestKupl"','length': 250,'name': 'MestKupl','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"ОКАТО"','length': 10,'name': 'OkatoD','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
+                                {'expression': '"EAS_ОКАТО"','length': 10,'name': 'OkatoD','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
                                 {'expression': '"Название"','length': 250,'name': 'MO','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
                                 
                                 {'expression': '"n"','length': 0,'name': 'FOUND_CONT','precision': 0,'sub_type': 0,'type': 6,'type_name': 'double precision'},
