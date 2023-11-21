@@ -7,7 +7,7 @@ from qgis.core import QgsProject
 
 # USER_SETTINGS
 source_file = r'C:\_Workspace\TASK\Геокодирование\Сообщения\Наркосообщения 2 кв 2023.xls'
-type = 1 # 1 - Отравления
+type = 2 # 1 - Отравления
          # 2 - Сообщения
 
 
@@ -271,7 +271,7 @@ elif type == 2:  # СООБЩЕНИЯ
 
                                     {'expression': '"Mesto"','length': 0,'name': 'Mesto','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
                                     {'expression': '"District"','length': 0,'name': 'District','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                    {'expression': '"set_in"','length': 0,'name': 'ID','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
+                                    {'expression': '"set_id"','length': 0,'name': 'ID','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
                                     {'expression': '"Data"','length': 0,'name': 'Data','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
                                                                       
                                     {'expression': '"TipIncid"','length': 0,'name': 'TipIncid','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
