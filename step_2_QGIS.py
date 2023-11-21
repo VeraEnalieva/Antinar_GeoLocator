@@ -6,7 +6,12 @@ from qgis.core import QgsProject
 
 
 # USER_SETTINGS
-source_file = r'C:\_Workspace\TASK\Геокодирование\Отравления_3кв_2023.xlsx'
+source_file = r'C:\_Workspace\TASK\Геокодирование\Сообщения\Наркосообщения 2 кв 2023.xls'
+type = 1 # 1 - Отравления
+         # 2 - Сообщения
+
+
+
 eas_buildings ='Здания ЕАС'
 d_adm = 'Районы Города'
 mo_okrug = 'Муниципальные Округа'
@@ -202,51 +207,94 @@ pay_attencion = processing.run("native:fieldcalculator",
 
                 
 QgsProject.instance().addMapLayer(pay_attencion['OUTPUT']).setName("Result")
+ 
+if type == 1:  # ОТРАВЛЕНИЯ
+    export_gml = processing.run("native:refactorfields", 
+                                {
+                                'INPUT':pay_attencion['OUTPUT'],
+                                'FIELDS_MAPPING':[
+                                    {'expression': '"AUTO"','length': 0,'name': 'OBJECTID_1','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"AUTO"','length': 0,'name': 'OBJECTID','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"EAS_ID_BUILDING_EAS"','length': 10,'name': 'ID_EAS','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
+                                    {'expression': '"adress_in_"','length': 0,'name': 'adress_in_','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"adr_src"','length': 0,'name': 'adr_src','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"x"','length': 20,'name': 'X','precision': 10,'sub_type': 0,'type': 6,'type_name': 'double precision'},
+                                    {'expression': '"y"','length': 20,'name': 'Y','precision': 10,'sub_type': 0,'type': 6,'type_name': 'double precision'},
+                                    {'expression': 'if("HouseNum", array_to_string(array("Street","HouseNum"), \', \'), "Street")','length': 0,'name': 'Adress','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': 'string_to_array((string_to_array("adr_src", \', \')[-1]), \' \')[0]','length': 0,'name': 'District','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"Age"','length': 0,'name': 'Age','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"SocialGr"','length': 0,'name': 'SocialGr','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"Sex"','length': 0,'name': 'Sex','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"set_id"','length': 20,'name': 'ID','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
+                                    {'expression': '"Street"','length': 250,'name': 'Street','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"HouseNum"','length': 0,'name': 'HouseNum','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"Mesto"','length': 0,'name': 'Mesto','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"Data"','length': 0,'name': 'Data','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"Diagnoz"','length': 0,'name': 'Diagnoz','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"MstSmert"','length': 0,'name': 'MstSmert','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"HarOtrvl"','length': 0,'name': 'HarOtrvl','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"KolOtrvl"','length': 0,'name': 'KolOtrvl','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"ObstOtr"','length': 250,'name': 'ObstOtr','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"MestKupl"','length': 250,'name': 'MestKupl','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"EAS_ОКАТО"','length': 10,'name': 'OkatoD','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
+                                    {'expression': '"Название"','length': 250,'name': 'MO','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    
+                                    {'expression': '"n"','length': 0,'name': 'FOUND_CONT','precision': 0,'sub_type': 0,'type': 6,'type_name': 'double precision'},
+                                    # пересчёт расстояния из градусов в метры. Очень приблизительный, но в этой задаче расстояние служит скорее маркером. Норм
+                                    {'expression': 'round("distance"*35000, 2)','length': 0,'name': 'distance','precision': 0,'sub_type': 0,'type': 6,'type_name': 'double precision'}, 
+                                    {'expression': '"EAS_PADDRESS"','length': 250,'name': 'EAS_PADDRESS','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"EAS_HOUSE"','length': 250,'name': 'EAS_HOUSE','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"EAS_CORPUS"','length': 250,'name': 'EAS_CORPUS','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"EAS_LITER"','length': 250,'name': 'EAS_ LITER','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"Name"','length': 250,'name': 'FACT_RAYON','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"PAY_AT"','length': 1,'name': 'PAY_ATTENTION','precision': 0,'sub_type': 0,'type': 1,'type_name': 'boolean'}
+                                    ],
+                                'OUTPUT':output_file
+                                }
+                                )
 
-export_gml = processing.run("native:refactorfields", 
-                            {
-                            'INPUT':pay_attencion['OUTPUT'],
-                            'FIELDS_MAPPING':[
-                                {'expression': '"AUTO"','length': 0,'name': 'OBJECTID_1','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"AUTO"','length': 0,'name': 'OBJECTID','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"EAS_ID_BUILDING_EAS"','length': 10,'name': 'ID_EAS','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
-                                {'expression': '"adress_in_"','length': 0,'name': 'adress_in_','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"adr_src"','length': 0,'name': 'adr_src','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"x"','length': 20,'name': 'X','precision': 10,'sub_type': 0,'type': 6,'type_name': 'double precision'},
-                                {'expression': '"y"','length': 20,'name': 'Y','precision': 10,'sub_type': 0,'type': 6,'type_name': 'double precision'},
-                                {'expression': 'if("HouseNum", array_to_string(array("Street","HouseNum"), \', \'), "Street")','length': 0,'name': 'Adress','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': 'string_to_array((string_to_array("adr_src", \', \')[-1]), \' \')[0]','length': 0,'name': 'District','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"Age"','length': 0,'name': 'Age','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"SocialGr"','length': 0,'name': 'SocialGr','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"Sex"','length': 0,'name': 'Sex','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"set_id"','length': 20,'name': 'ID','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
-                                {'expression': '"Street"','length': 250,'name': 'Street','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"HouseNum"','length': 0,'name': 'HouseNum','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"Mesto"','length': 0,'name': 'Mesto','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"Data"','length': 0,'name': 'Data','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"Diagnoz"','length': 0,'name': 'Diagnoz','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"MstSmert"','length': 0,'name': 'MstSmert','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"HarOtrvl"','length': 0,'name': 'HarOtrvl','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"KolOtrvl"','length': 0,'name': 'KolOtrvl','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"ObstOtr"','length': 250,'name': 'ObstOtr','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"MestKupl"','length': 250,'name': 'MestKupl','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"EAS_ОКАТО"','length': 10,'name': 'OkatoD','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
-                                {'expression': '"Название"','length': 250,'name': 'MO','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                
-                                {'expression': '"n"','length': 0,'name': 'FOUND_CONT','precision': 0,'sub_type': 0,'type': 6,'type_name': 'double precision'},
-                                # пересчёт расстояния из градусов в метры. Очень приблизительный, но в этой задаче расстояние служит скорее маркером. Норм
-                                {'expression': 'round("distance"*35000, 2)','length': 0,'name': 'distance','precision': 0,'sub_type': 0,'type': 6,'type_name': 'double precision'}, 
-                                {'expression': '"EAS_PADDRESS"','length': 250,'name': 'EAS_PADDRESS','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"EAS_HOUSE"','length': 250,'name': 'EAS_HOUSE','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"EAS_CORPUS"','length': 250,'name': 'EAS_CORPUS','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"EAS_LITER"','length': 250,'name': 'EAS_ LITER','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"Name"','length': 250,'name': 'FACT_RAYON','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
-                                {'expression': '"PAY_AT"','length': 1,'name': 'PAY_ATTENTION','precision': 0,'sub_type': 0,'type': 1,'type_name': 'boolean'}
-                                ],
-                            'OUTPUT':output_file
-                            }
-                            )
 
+elif type == 2:  # СООБЩЕНИЯ
+    export_gml = processing.run("native:refactorfields", 
+                                {
+                                'INPUT':pay_attencion['OUTPUT'],
+                                'FIELDS_MAPPING':[
+                                    
+                                    
+                                    {'expression': 'array_to_string(array("lat", "long"), \' \')','length': 0,'name': 'gml:pos','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"EAS_ID_BUILDING_EAS"','length': 10,'name': 'ID_EAS','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
+                                    {'expression': '"Address"','length': 0,'name': 'Address','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"adr_src"','length': 0,'name': 'adr_src','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"adr_ya"','length': 0,'name': 'adr_ya','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"x"','length': 20,'name': 'x','precision': 10,'sub_type': 0,'type': 6,'type_name': 'double precision'},
+                                    {'expression': '"y"','length': 20,'name': 'y','precision': 10,'sub_type': 0,'type': 6,'type_name': 'double precision'},
+
+                                    {'expression': '"Mesto"','length': 0,'name': 'Mesto','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"District"','length': 0,'name': 'District','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"set_in"','length': 0,'name': 'ID','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
+                                    {'expression': '"Data"','length': 0,'name': 'Data','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                                                      
+                                    {'expression': '"TipIncid"','length': 0,'name': 'TipIncid','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"EAS_ОКАТО"','length': 10,'name': 'OkatoD','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'}, 
+                                    {'expression': '"Название"','length': 250,'name': 'MO','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"AUTO"','length': 0,'name': 'OBJECTID','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},     
+                                                                                                       
+                                    {'expression': '"регистрационный номер заявки"','length': 0,'name': 'REG_NUM_SRC','precision': 0,'sub_type': 0,'type': 2,'type_name': 'integer'},
+                                    {'expression': '"n"','length': 0,'name': 'FOUND_CONT','precision': 0,'sub_type': 0,'type': 6,'type_name': 'double precision'},
+                                    # пересчёт расстояния из градусов в метры. Очень приблизительный, но в этой задаче расстояние служит скорее маркером. Норм
+                                    {'expression': 'round("distance"*35000, 2)','length': 0,'name': 'distance','precision': 0,'sub_type': 0,'type': 6,'type_name': 'double precision'}, 
+                                    {'expression': '"EAS_PADDRESS"','length': 250,'name': 'EAS_PADDRESS','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"EAS_HOUSE"','length': 250,'name': 'EAS_HOUSE','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"EAS_CORPUS"','length': 250,'name': 'EAS_CORPUS','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"EAS_LITER"','length': 250,'name': 'EAS_ LITER','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"Name"','length': 250,'name': 'FACT_RAYON','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'},
+                                    {'expression': '"PAY_AT"','length': 1,'name': 'PAY_ATTENTION','precision': 0,'sub_type': 0,'type': 1,'type_name': 'boolean'}
+                                    ],
+                                'OUTPUT':output_file
+                                }
+                                )
+
+    pass
 # QgsProject.instance().addMapLayer(export_gml['OUTPUT'])
 #output_file = QgsVectorLayer(os.path.abspath(output_file))
 iface.addVectorLayer(output_file, basename, "ogr")
