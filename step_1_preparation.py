@@ -3,12 +3,12 @@ import pandas as pd
 import json
 
 # USER_SETTINGS 1
-xls_file = r'C:\_Workspace\TASK\Геокодирование\Сообщения\НС_3кв23.xls'
+xls_file = r'C:\_Workspace\TASK\Геокодирование\Отравления\Отравления_2кв23.xlsx'
 # USER_SETTINGS 2
-type = 2 # 1 - Отравления
+type = 1 # 1 - Отравления
          # 2 - Сообщения
 # USER_SETTINGS 3
-street_dict_file = 'street_dict_file.txt'
+street_dict_file = r'C:\_Workspace\TASK\Геокодирование\Tools\Antinar_GeoLocator\street_dict_file.txt'
 
 
 def make_street_dict(file):
@@ -64,7 +64,7 @@ def split_by_950(df, src_file, cols, ext_len):
         i.to_csv(src_file[:-ext_len]+'_part'+str(df_number)+'.csv', index=False, columns=cols, header=None, sep='\t')
         df_number += 1
 
-def find_house_num_in_messages(df):
+def find_house_num_in_messages_type_2(df):
     df = df.join(df.Mesto.str.extract('(?P<Street>\D+) (?P<Number>\d+.*)', expand=True))
     for index, row in df.iterrows():
         #print(row['Street'])
@@ -78,7 +78,22 @@ def find_house_num_in_messages(df):
 
     return df
 
+def find_house_num_in_messages_type_1(df):
+    for index, row in df.iterrows():
+        print(row['Street'], row['HouseNum'])
+        if pd.isnull(df.loc[index, 'HouseNum']) is True : # Если не указан номер дома
+            if row['Street'].strip() in street_dict:  # и если такая улица есть в словаре исключений, то в зависимости от района приделываем номер дома
 
+                
+                row['Street'] = row['Street'].strip()
+                dt=street_dict[row['Street']]
+                df.loc[index, 'HouseNum'] = 'дом '+str(dt[row['District']])
+                print(row['Street'], row['HouseNum'])
+            else:  # и если такой улицы НЕТ в словаре исключений, то по умолчанию дом 1
+                df.loc[index, 'HouseNum'] = 'дом 1'
+                print( df.loc[index, 'HouseNum'])
+                print(row['Street'], row['HouseNum'])
+    return df
         
 if __name__ == "__main__"    :       
     os.chdir(os.path.dirname(xls_file))
@@ -91,15 +106,18 @@ if __name__ == "__main__"    :
     
     if type == 1:
         df = xlsx_type_1(df)
-        values = {"HouseNum": 1,}
-        df = df.fillna(value=values)
+        #values = {"HouseNum": 1,}
+        #df = df.fillna(value=values)
+        
+        df = find_house_num_in_messages_type_1(df)
+        
         df['Mesto'] = df['city'].astype(str)+', '+df['Street'].astype(str)+', '+ df['HouseNum'].astype(str)+', '+ df['District']+' район'
 
         
     elif type == 2:
         cols = ['set_id', 'city', 'Mesto','District']
         df = xlsx_type_2(df, cols)
-        df = find_house_num_in_messages(df)
+        df = find_house_num_in_messages_type_2(df)
         #df.to_csv(r'C:\_Workspace\TASK\Геокодирование\__TEST__.csv')
         df['District'] = df['District'].astype(str)+' район'
         df['Mesto'] = df['city'].astype(str)+', '+df['Mesto'].astype(str)+', '+ df['District']
@@ -109,5 +127,5 @@ if __name__ == "__main__"    :
         print("не указан формат входных данных type")
         
     cols = ['set_id', 'Mesto']
-    # df.to_csv(r'C:\_Workspace\TASK\Геокодирование\__TEST__.csv')
+    df.to_csv(r'C:\_Workspace\TASK\Геокодирование\__TEST__.csv')
     split_by_950(df, src_file, cols, ext_len)
