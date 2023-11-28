@@ -3,7 +3,7 @@ import pandas as pd
 import json
 
 # USER_SETTINGS 1
-xls_file = r'C:\_Workspace\TASK\Геокодирование\Отравления\Отравления_2кв23.xlsx'
+xls_file = r'C:\_Workspace\TASK\Геокодирование\Сообщения\temp\НС_3кв23_v3.xlsx'
 # USER_SETTINGS 2
 type = 2 # 1 - Отравления
          # 2 - Сообщения
@@ -51,7 +51,6 @@ def xlsx_type_1(df):
 def xlsx_type_2(df, cols):
     df['city'] = 'Санкт-Петербург' 
     df_crop = df[cols].copy()
-
     return df_crop
 
 
@@ -72,7 +71,10 @@ def find_house_num_in_messages_type_2(df):
             if row['Mesto'].strip() in street_dict:  # и если такая улица есть в словаре исключений, то в зависимости от района приделываем номер дома
                 row['Mesto'] = row['Mesto'].strip()
                 dt=street_dict[row['Mesto']]
-                df.loc[index, 'Mesto'] = row['Mesto']+', дом '+str(dt[row['District']])
+                try:
+                    df.loc[index, 'Mesto'] = row['Mesto']+', дом '+str(dt[row['District']])
+                except:
+                    df.loc[index, 'Mesto'] = row['Mesto']+', дом 1'
             else:  # и если такой улицы НЕТ в словаре исключений, то по умолчанию дом 1
                 df.loc[index, 'Mesto'] = row['Mesto']+', дом 1'
 
@@ -100,6 +102,7 @@ if __name__ == "__main__"    :
     src_file = os.path.basename(xls_file)
     street_dict = make_street_dict(street_dict_file)
     df = pd.read_excel(xls_file) 
+    print(df)
     df['set_id'] = df.index + 1
     ext_len= len(src_file.split('.')[1])+1
     df.to_csv(src_file[:-ext_len]+'_full.csv', index=False, sep='\t')
@@ -127,5 +130,5 @@ if __name__ == "__main__"    :
         print("не указан формат входных данных type")
         
     cols = ['set_id', 'Mesto']
-    df.to_csv(r'C:\_Workspace\TASK\Геокодирование\__TEST__.csv')
+    # df.to_csv(r'C:\_Workspace\TASK\Геокодирование\__TEST__.csv')
     split_by_950(df, src_file, cols, ext_len)
