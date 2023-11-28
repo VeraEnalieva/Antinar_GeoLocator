@@ -5,7 +5,7 @@ import json
 # USER_SETTINGS 1
 xls_file = r'C:\_Workspace\TASK\Геокодирование\Отравления\Отравления_2кв23.xlsx'
 # USER_SETTINGS 2
-type = 1 # 1 - Отравления
+type = 2 # 1 - Отравления
          # 2 - Сообщения
 # USER_SETTINGS 3
 street_dict_file = r'C:\_Workspace\TASK\Геокодирование\Tools\Antinar_GeoLocator\street_dict_file.txt'
